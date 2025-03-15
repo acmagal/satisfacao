@@ -18,13 +18,13 @@ export default function HomeScreen() {
     optD: 0,
   });
 
-
   const storeData = async (value: AnswerState) => {
     try {
       const jsonValue = JSON.stringify(value);
       await AsyncStorage.setItem('my-key', jsonValue);
     } catch (e) {
       // saving error
+      console.error('Error saving data: ', e);
     }
   };
 
@@ -34,15 +34,28 @@ export default function HomeScreen() {
       return jsonValue != null ? JSON.parse(jsonValue) : null;
     } catch (e) {
       // error reading value
+      console.error('Error reading value: ', e);
     }
   };
 
-
   useEffect(() => {
-    const results = getData();
-    console.log(results);
-
+    const loadData = async () => {
+      const results = await getData();
+      if (results) {
+        setAnswers(results);
+      }
+      console.log(results); // Log retrieved data
+    };
+    loadData();
   }, []);
+
+  const handlePress = (option: keyof AnswerState) => {
+    setAnswers((previous) => {
+      const updatedAnswers = { ...previous, [option]: previous[option] + 1 };
+      storeData(updatedAnswers);  // Store updated data
+      return updatedAnswers;
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -55,69 +68,19 @@ export default function HomeScreen() {
         </Text>
       </View>
       <View style={styles.actions}>
-        <TouchableOpacity
-          onPress={
-            () => {
-              setAnswers(
-                (previous) => ({
-                  ...previous, optA: previous.optA + 1
-                })
-              )
-              storeData(answers);
-            }
-          }
-          style={styles.button}>
-          <Text>
-            OpçãoA
-          </Text>
+        <TouchableOpacity onPress={() => handlePress('optA')} style={styles.button}>
+          <Text>OpçãoA</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={
-            () => {
-              setAnswers(
-                (previous) => ({
-                  ...previous, optB: previous.optB + 1
-                })
-              )
-              storeData(answers);
-            }
-          } style={styles.button}>
-          <Text>
-            OpçãoB
-          </Text>
+        <TouchableOpacity onPress={() => handlePress('optB')} style={styles.button}>
+          <Text>OpçãoB</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={
-            () => {
-              setAnswers(
-                (previous) => ({
-                  ...previous, optC: previous.optC + 1
-                })
-              )
-              storeData(answers);
-            }
-          } style={styles.button}>
-          <Text>
-            OpçãoC
-          </Text>
+        <TouchableOpacity onPress={() => handlePress('optC')} style={styles.button}>
+          <Text>OpçãoC</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={
-            () => {
-              setAnswers(
-                (previous) => ({
-                  ...previous, optD: previous.optD + 1
-                })
-              )
-              storeData(answers);
-            }
-          } style={styles.button}>
-          <Text>
-            OpçãoD
-          </Text>
+        <TouchableOpacity onPress={() => handlePress('optD')} style={styles.button}>
+          <Text>OpçãoD</Text>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 }
@@ -126,7 +89,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "pink",
     height: "100%",
-
   },
   header: {
     backgroundColor: "orange",
@@ -135,7 +97,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   actions: {
-
     flex: 3,
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -146,9 +107,7 @@ const styles = StyleSheet.create({
     gap: 50,
     paddingTop: 10,
   },
-
   button: {
-
     width: '25%', // 4 columns
     aspectRatio: 1, // Makes it a square
     backgroundColor: 'blue',
@@ -157,7 +116,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'white',
     borderRadius: 8,
-
   }
-
 });
