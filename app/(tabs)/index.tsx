@@ -1,59 +1,68 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
+import {
+	Alert,
+	Image,
+	ImageBackground,
+	StyleSheet,
+	Text,
+	View,
+} from 'react-native';
 
 import Button from '../../components/Button';
-
-type AnswerState = {
-	optA: number;
-	optB: number;
-	optC: number;
-	optD: number;
-};
+import { getData, storeData } from '@/services/storageService';
+import { AnswerState } from '@/types';
 
 export default function HomeScreen() {
-	const [answers, setAnswers] = useState<AnswerState>({
-		optA: 0,
-		optB: 0,
-		optC: 0,
-		optD: 0,
-	});
+	const [answers, setAnswers] = useState<AnswerState[]>([
+		{
+			title: 'Original',
+			value: 0,
+		},
+		{
+			title: 'Integral',
+			value: 0,
+		},
+		{
+			title: 'Premium Original',
+			value: 0,
+		},
+		{
+			title: 'Premium Integral',
+			value: 0,
+		},
+	]);
 
 	const images = [
-		Image.resolveAssetSource(require('../../assets/images/original.png')).uri,
-		Image.resolveAssetSource(require('../../assets/images/integral.png')).uri,
-		Image.resolveAssetSource(
-			require('../../assets/images/premium-original.png')
-		).uri,
-		Image.resolveAssetSource(
-			require('../../assets/images/premium-integral.png')
-		).uri,
-		require('../../assets/images/bg.png'),
+		{
+			title: 'Original',
+			image: Image.resolveAssetSource(
+				require('../../assets/images/original.png')
+			).uri,
+		},
+		{
+			title: 'Integral',
+			image: Image.resolveAssetSource(
+				require('../../assets/images/integral.png')
+			).uri,
+		},
+		{
+			title: 'Premium Original',
+			image: Image.resolveAssetSource(
+				require('../../assets/images/premium-original.png')
+			).uri,
+		},
+		{
+			title: 'Premium Integral',
+			image: Image.resolveAssetSource(
+				require('../../assets/images/premium-integral.png')
+			).uri,
+		},
 	];
-
-	const storeData = async (value: AnswerState) => {
-		try {
-			const jsonValue = JSON.stringify(value);
-			await AsyncStorage.setItem('my-key', jsonValue);
-		} catch (e) {
-			// saving error
-			console.error('Error saving data: ', e);
-		}
-	};
-
-	const getData = async () => {
-		try {
-			const jsonValue = await AsyncStorage.getItem('my-key');
-			return jsonValue != null ? JSON.parse(jsonValue) : null;
-		} catch (e) {
-			// error reading value
-			console.error('Error reading value: ', e);
-		}
-	};
 
 	useEffect(() => {
 		const loadData = async () => {
-			const results = await getData();
+			const results = await getData<AnswerState[]>();
 			if (results) {
 				setAnswers(results);
 			}
@@ -62,12 +71,14 @@ export default function HomeScreen() {
 		loadData();
 	}, []);
 
-	const handlePress = (option: keyof AnswerState) => {
+	const handlePress = (item: string) => {
 		setAnswers((previous) => {
-			const updatedAnswers = { ...previous, [option]: previous[option] + 1 };
-			storeData(updatedAnswers); // Store updated data
-			return updatedAnswers;
+			const values = [...previous]; // Store updated data
+			values.find((element) => element.title === item)!.value += 1; // Increment value
+			return values;
 		});
+		storeData(answers);
+		Alert.alert('Obrigado!', 'Voto computado com sucesso!');
 	};
 
 	return (
@@ -77,26 +88,14 @@ export default function HomeScreen() {
 			style={styles.container}>
 			<View style={styles.header} />
 			<View style={styles.actions}>
-				<Button
-					style={styles.button}
-					image={images[0]}
-					onPress={() => handlePress('optA')}
-				/>
-				<Button
-					style={styles.button}
-					image={images[1]}
-					onPress={() => handlePress('optB')}
-				/>
-				<Button
-					style={styles.button}
-					image={images[2]}
-					onPress={() => handlePress('optC')}
-				/>
-				<Button
-					style={styles.button}
-					image={images[3]}
-					onPress={() => handlePress('optD')}
-				/>
+				{images.map((item, index) => (
+					<Button
+						key={index}
+						image={item.image}
+						onPress={() => handlePress(answers[index].title)}
+						style={styles.button}
+					/>
+				))}
 			</View>
 		</ImageBackground>
 	);
