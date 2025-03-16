@@ -1,120 +1,132 @@
-import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Platform, View, Text, Button, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
+
+import Button from '../../components/Button';
 
 type AnswerState = {
-  optA: number,
-  optB: number,
-  optC: number,
-  optD: number
-}
+	optA: number;
+	optB: number;
+	optC: number;
+	optD: number;
+};
 
 export default function HomeScreen() {
+	const [answers, setAnswers] = useState<AnswerState>({
+		optA: 0,
+		optB: 0,
+		optC: 0,
+		optD: 0,
+	});
 
-  const [answers, setAnswers] = useState<AnswerState>({
-    optA: 0,
-    optB: 0,
-    optC: 0,
-    optD: 0,
-  });
+	const images = [
+		Image.resolveAssetSource(require('../../assets/images/original.png')).uri,
+		Image.resolveAssetSource(require('../../assets/images/integral.png')).uri,
+		Image.resolveAssetSource(
+			require('../../assets/images/premium-original.png')
+		).uri,
+		Image.resolveAssetSource(
+			require('../../assets/images/premium-integral.png')
+		).uri,
+		require('../../assets/images/bg.png'),
+	];
 
-  const storeData = async (value: AnswerState) => {
-    try {
-      const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem('my-key', jsonValue);
-    } catch (e) {
-      // saving error
-      console.error('Error saving data: ', e);
-    }
-  };
+	const storeData = async (value: AnswerState) => {
+		try {
+			const jsonValue = JSON.stringify(value);
+			await AsyncStorage.setItem('my-key', jsonValue);
+		} catch (e) {
+			// saving error
+			console.error('Error saving data: ', e);
+		}
+	};
 
-  const getData = async () => {
-    try {
-      const jsonValue = await AsyncStorage.getItem('my-key');
-      return jsonValue != null ? JSON.parse(jsonValue) : null;
-    } catch (e) {
-      // error reading value
-      console.error('Error reading value: ', e);
-    }
-  };
+	const getData = async () => {
+		try {
+			const jsonValue = await AsyncStorage.getItem('my-key');
+			return jsonValue != null ? JSON.parse(jsonValue) : null;
+		} catch (e) {
+			// error reading value
+			console.error('Error reading value: ', e);
+		}
+	};
 
-  useEffect(() => {
-    const loadData = async () => {
-      const results = await getData();
-      if (results) {
-        setAnswers(results);
-      }
-      console.log(results); // Log retrieved data
-    };
-    loadData();
-  }, []);
+	useEffect(() => {
+		const loadData = async () => {
+			const results = await getData();
+			if (results) {
+				setAnswers(results);
+			}
+			console.log(results); // Log retrieved data
+		};
+		loadData();
+	}, []);
 
-  const handlePress = (option: keyof AnswerState) => {
-    setAnswers((previous) => {
-      const updatedAnswers = { ...previous, [option]: previous[option] + 1 };
-      storeData(updatedAnswers);  // Store updated data
-      return updatedAnswers;
-    });
-  };
+	const handlePress = (option: keyof AnswerState) => {
+		setAnswers((previous) => {
+			const updatedAnswers = { ...previous, [option]: previous[option] + 1 };
+			storeData(updatedAnswers); // Store updated data
+			return updatedAnswers;
+		});
+	};
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text>
-          primeira pergunta
-        </Text>
-        <Text>
-          resposta {JSON.stringify(answers)}
-        </Text>
-      </View>
-      <View style={styles.actions}>
-        <TouchableOpacity onPress={() => handlePress('optA')} style={styles.button}>
-          <Text>OpçãoA</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handlePress('optB')} style={styles.button}>
-          <Text>OpçãoB</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handlePress('optC')} style={styles.button}>
-          <Text>OpçãoC</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handlePress('optD')} style={styles.button}>
-          <Text>OpçãoD</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+	return (
+		<ImageBackground
+			source={require('../../assets/images/bg.png')}
+			resizeMode='cover'
+			style={styles.container}>
+			<View style={styles.header} />
+			<View style={styles.actions}>
+				<Button
+					style={styles.button}
+					image={images[0]}
+					onPress={() => handlePress('optA')}
+				/>
+				<Button
+					style={styles.button}
+					image={images[1]}
+					onPress={() => handlePress('optB')}
+				/>
+				<Button
+					style={styles.button}
+					image={images[2]}
+					onPress={() => handlePress('optC')}
+				/>
+				<Button
+					style={styles.button}
+					image={images[3]}
+					onPress={() => handlePress('optD')}
+				/>
+			</View>
+		</ImageBackground>
+	);
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "pink",
-    height: "100%",
-  },
-  header: {
-    backgroundColor: "orange",
-    flex: 5,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  actions: {
-    flex: 3,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 10,
-    gap: 50,
-    paddingTop: 10,
-  },
-  button: {
-    width: '25%', // 4 columns
-    aspectRatio: 1, // Makes it a square
-    backgroundColor: 'blue',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'white',
-    borderRadius: 8,
-  }
+	container: {
+		backgroundColor: 'pink',
+		height: '100%',
+	},
+	header: {
+		flex: 2,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	actions: {
+		flex: 2,
+		flexDirection: 'row',
+		flexWrap: 'wrap', // Allows items to wrap into multiple rows
+		justifyContent: 'space-between', // Ensures equal spacing
+		alignItems: 'center',
+		width: '100%',
+		padding: 50,
+		gap: 20, // Space between buttons
+	},
+	button: {
+		width: '40%', // Adjust for 2 columns per row
+		aspectRatio: 1, // Makes it square
+		justifyContent: 'center',
+		alignItems: 'center',
+		borderRadius: 8,
+	},
 });
