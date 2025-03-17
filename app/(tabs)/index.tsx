@@ -47,13 +47,13 @@ export default function HomeScreen() {
 			).uri,
 		},
 		{
-			title: 'Premium Original',
+			title: 'P. Original',
 			image: Image.resolveAssetSource(
 				require('../../assets/images/premium-original.png')
 			).uri,
 		},
 		{
-			title: 'Premium Integral',
+			title: 'P. Integral',
 			image: Image.resolveAssetSource(
 				require('../../assets/images/premium-integral.png')
 			).uri,
