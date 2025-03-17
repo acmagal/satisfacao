@@ -9,6 +9,7 @@ import {
 	View,
 	Button,
 	Alert,
+	TextInput,
 } from 'react-native';
 import PieChart from 'react-native-pie-chart';
 
@@ -24,6 +25,17 @@ const ChartComponent = () => {
 	];
 
 	const [answers, setAnswers] = useState(defaultSeries);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [username, setUsername] = useState('');
+	const [password, setPassword] = useState('');
+
+	const handleLogin = () => {
+		if (username === 'Admin' && password === 'Admin1234') {
+			setIsLoggedIn(true);
+		} else {
+			Alert.alert('Erro', 'Usuário ou senha incorretos.');
+		}
+	};
 
 	const loadData = async () => {
 		const results = await getData<AnswerState[]>();
@@ -52,7 +64,7 @@ const ChartComponent = () => {
 	const saveDataToFile = async () => {
 		try {
 			const data = await getData<AnswerState[]>();
-			const content = convertJsonToTxt(data);
+			const content = convertJsonToTxt(data ?? []);
 			await FileSystem.writeAsStringAsync(fileUri, content, { encoding: FileSystem.EncodingType.UTF8 });
 			console.log(`Arquivo salvo em: ${fileUri}`);
 			Alert.alert('Sucesso', `Dados salvos em: ${fileUri}`);
@@ -79,6 +91,31 @@ const ChartComponent = () => {
 		}
 	};
 
+	// 🔽🔽🔽 TELA DE LOGIN 🔽🔽🔽
+	if (!isLoggedIn) {
+		return (
+			<View style={styles.container}>
+				<Text style={styles.title}>Login</Text>
+				<TextInput
+					style={styles.input}
+					placeholder="Usuário"
+					placeholderTextColor="#ccc"
+					onChangeText={setUsername}
+					autoCapitalize="none"
+				/>
+				<TextInput
+					style={styles.input}
+					placeholder="Senha"
+					placeholderTextColor="#ccc"
+					secureTextEntry
+					onChangeText={setPassword}
+				/>
+				<Button title="Entrar" onPress={handleLogin} />
+			</View>
+		);
+	}
+
+	// 🔽🔽🔽 TELA DA DASHBOARD 🔽🔽🔽
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Resultados:</Text>
@@ -98,15 +135,24 @@ const ChartComponent = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		justifyContent: 'center',
 		alignItems: 'center',
 		backgroundColor: 'green',
+		padding: 20,
 	},
 	title: {
-		fontSize: 48,
-		margin: 10,
+		fontSize: 32,
+		marginBottom: 20,
 		fontWeight: 'bold',
 		color: 'white',
-		marginTop: '20%',
+	},
+	input: {
+		width: '80%',
+		height: 40,
+		backgroundColor: 'white',
+		marginBottom: 10,
+		paddingHorizontal: 10,
+		borderRadius: 5,
 	},
 	pie: {
 		marginVertical: 10,
