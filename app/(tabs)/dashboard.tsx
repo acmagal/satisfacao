@@ -1,6 +1,15 @@
+import { getData } from '@/services/storageService';
+import { AnswerState } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, Text, View } from 'react-native';
+import {
+	StyleSheet,
+	ScrollView,
+	Text,
+	View,
+	Button,
+	Share,
+} from 'react-native';
 import PieChart from 'react-native-pie-chart';
 
 const ChartComponent = () => {
@@ -8,59 +17,77 @@ const ChartComponent = () => {
 
 	// Valores padrão
 	const defaultSeries = [
-		{ value: 400, color: '#03fb07' },
-		{ value: 321, color: '#ffb300' },
-		{ value: 300, color: '#ff9100' },
-		{ value: 400, color: '#ff2600' },
+		{ value: 10, color: 'blue' },
+		{ value: 10, color: 'orange' },
+		{ value: 10, color: 'red' },
+		{ value: 10, color: 'white' },
 	];
-
-	const getData = async () => {
-		try {
-			const jsonValue = await AsyncStorage.getItem('my-key');
-			return jsonValue ? JSON.parse(jsonValue) : null;
-		} catch (e) {
-			console.error('Erro ao ler os dados:', e);
-			return null;
-		}
-	};
 
 	const [answers, setAnswers] = useState(defaultSeries);
 
+	const loadData = async () => {
+		const results = await getData<AnswerState[]>();
+
+		if (results) {
+			const series = results.map((item: AnswerState, index: number) => {
+				return {
+					value: item.value,
+					color: defaultSeries[index].color,
+					label: { text: `${item.title} - ${item.value}` },
+				};
+			});
+
+			setAnswers(series);
+		}
+	};
 	useEffect(() => {
-		const loadData = async () => {
-			const results = await getData();
-
-			if (results && Array.isArray(results)) {
-				console.log(results);
-				const validatedResults = results.every(
-					(item) => item.value && item.color
-				)
-					? results
-					: defaultSeries;
-
-				setAnswers(validatedResults);
-			}
-
-			console.log('Dados carregados:', results);
-		};
-
+		AsyncStorage.clear();
 		loadData();
 	}, []);
 
+	useEffect(() => {
+		loadData();
+	}, [answers]);
+
+	const convertJsonToCsv = (json: AnswerState[]) => {
+		// Map JSON fields to the new CSV headers (title -> nome, value -> quantidade)
+		const headers = ['Nome', 'Quantidade']; // Custom headers
+		const rows = json.map(
+			(item) => [item.title, item.value].join(',') // Map fields accordingly
+		);
+
+		// Join headers with rows and separate by new lines
+		return [headers.join(','), ...rows].join('\n');
+	};
+	const handleShare = async () => {
+		try {
+			const data = await getData<AnswerState[]>();
+			const result = await Share.share({
+				message: convertJsonToCsv(data!), // Convert the JSON data to string
+			});
+
+			if (result.action === Share.sharedAction) {
+				console.log('Shared successfully');
+			} else if (result.action === Share.dismissedAction) {
+				console.log('Share dismissed');
+			}
+		} catch (error) {
+			console.error('Error sharing the data:', error);
+		}
+	};
+
 	return (
-		<ScrollView style={{ flex: 1 }}>
-			<View style={styles.container}>
-				<Text style={styles.title}>Resultados:</Text>
-				{/* <PieChart
-					widthAndHeight={widthAndHeight}
-					series={answers}
-					cover={0.45}
-				/> */}
-			</View>
-			<View>
-				<Text>aaaaaa</Text>
-			</View>
-		</ScrollView>
+		<View style={styles.container}>
+			<Text style={styles.title}>Resultados:</Text>
+			<PieChart
+				style={styles.pie}
+				widthAndHeight={widthAndHeight}
+				series={answers}
+				cover={0.15}
+			/>
+			<Button color={'#50C878'} title='Atualizar dados' onPress={loadData} />
+			<Button color={'#50C878'} title='Salvar dados' onPress={handleShare} />
+		</View>
 	);
 };
 
@@ -71,8 +98,17 @@ const styles = StyleSheet.create({
 		backgroundColor: 'green',
 	},
 	title: {
-		fontSize: 24,
+		fontSize: 48,
 		margin: 10,
+		flex: 0.4,
+		fontWeight: 'bold',
+		color: 'white',
+		marginTop: '20%',
+	},
+	pie: {
+		marginVertical: 10,
+		marginBottom: '20%',
+		flex: 1,
 	},
 });
 
