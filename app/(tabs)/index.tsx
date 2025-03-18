@@ -16,46 +16,36 @@ import { AnswerState } from '@/types';
 export default function HomeScreen() {
 	const [answers, setAnswers] = useState<AnswerState[]>([
 		{
-			title: 'Original',
+			title: 'Empada de Frango',
 			value: 0,
 		},
 		{
-			title: 'Integral',
+			title: 'Pão de Alho',
 			value: 0,
 		},
 		{
-			title: 'Premium Original',
-			value: 0,
-		},
-		{
-			title: 'Premium Integral',
+			title: 'Torresmo',
 			value: 0,
 		},
 	]);
 
 	const images = [
 		{
-			title: 'Original',
+			title: 'Empada de Frango',
 			image: Image.resolveAssetSource(
-				require('../../assets/images/original.png')
+				require('../../assets/images/BT01.png')
 			).uri,
 		},
 		{
-			title: 'Integral',
+			title: 'Pão de Alho',
 			image: Image.resolveAssetSource(
-				require('../../assets/images/integral.png')
+				require('../../assets/images/BT02.png')
 			).uri,
 		},
 		{
-			title: 'P. Original',
+			title: 'Torresmo',
 			image: Image.resolveAssetSource(
-				require('../../assets/images/premium-original.png')
-			).uri,
-		},
-		{
-			title: 'P. Integral',
-			image: Image.resolveAssetSource(
-				require('../../assets/images/premium-integral.png')
+				require('../../assets/images/BT03.png')
 			).uri,
 		},
 	];
@@ -66,15 +56,15 @@ export default function HomeScreen() {
 			if (results) {
 				setAnswers(results);
 			}
-			console.log(results); // Log retrieved data
+			console.log(results);
 		};
 		loadData();
 	}, []);
 
 	const handlePress = (item: string) => {
 		setAnswers((previous) => {
-			const values = [...previous]; // Store updated data
-			values.find((element) => element.title === item)!.value += 1; // Increment value
+			const values = [...previous];
+			values.find((element) => element.title === item)!.value += 1;
 			return values;
 		});
 		storeData(answers);
@@ -88,7 +78,7 @@ export default function HomeScreen() {
 			style={styles.container}>
 			<View style={styles.header} />
 			<View style={styles.actions}>
-				{images.map((item, index) => (
+				{images.slice(0, 3).map((item, index) => (
 					<Button
 						key={index}
 						image={item.image}
@@ -107,25 +97,29 @@ const styles = StyleSheet.create({
 		height: '100%',
 	},
 	header: {
-		flex: 2,
+		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
 	actions: {
-		flex: 2,
-		flexDirection: 'row',
-		flexWrap: 'wrap', // Allows items to wrap into multiple rows
-		justifyContent: 'space-between', // Ensures equal spacing
-		alignItems: 'center',
-		width: '100%',
-		padding: 50,
-		gap: 20, // Space between buttons
-	},
-	button: {
-		width: '40%', // Adjust for 2 columns per row
-		aspectRatio: 1, // Makes it square
+		flex: 3,
 		justifyContent: 'center',
 		alignItems: 'center',
-		borderRadius: 8,
+		width: '100%',
+		paddingTop: 50,
+	},
+	button: {
+		width: '90%',
+		height: 80,
+		justifyContent: 'center',
+		alignItems: 'center',
+		borderRadius: 12,
+		marginBottom: 30,
+		backgroundColor: 'rgba(9, 140, 48, 0.6)',
+		borderWidth: 4,
+		borderColor: 'rgba(136, 186, 101, 0.6)',
 	},
 });
+
+
+

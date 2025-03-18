@@ -10,8 +10,8 @@ import {
 	Button,
 	Alert,
 	TextInput,
+	ImageBackground,
 } from 'react-native';
-import PieChart from 'react-native-pie-chart';
 
 const ChartComponent = () => {
 	const widthAndHeight = 250;
@@ -21,7 +21,6 @@ const ChartComponent = () => {
 		{ value: 10, color: 'blue' },
 		{ value: 10, color: 'orange' },
 		{ value: 10, color: 'red' },
-		{ value: 10, color: 'white' },
 	];
 
 	const [answers, setAnswers] = useState(defaultSeries);
@@ -41,7 +40,7 @@ const ChartComponent = () => {
 		const results = await getData<AnswerState[]>();
 
 		if (results) {
-			const series = results.map((item: AnswerState, index: number) => {
+			const series = results.slice(0, 3).map((item: AnswerState, index: number) => {
 				return {
 					value: item.value,
 					color: defaultSeries[index].color,
@@ -64,10 +63,10 @@ const ChartComponent = () => {
 	const saveDataToFile = async () => {
 		try {
 			const data = await getData<AnswerState[]>();
-			const content = convertJsonToTxt(data ?? []);
+			const content = convertJsonToTxt(data?.slice(0, 3) ?? []);
 			await FileSystem.writeAsStringAsync(fileUri, content, { encoding: FileSystem.EncodingType.UTF8 });
 			console.log(`Arquivo salvo em: ${fileUri}`);
-			Alert.alert('Sucesso', `Dados salvos em: ${fileUri}`);
+			Alert.alert('Sucesso', `Dados atualizados. Clique em "Visualizar dados" para verificar os Resultados da pesquisa.`);
 		} catch (error) {
 			console.error('Erro ao salvar o arquivo:', error);
 			Alert.alert('Erro', 'Não foi possível salvar os dados.');
@@ -84,17 +83,18 @@ const ChartComponent = () => {
 
 			const content = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.UTF8 });
 			console.log('Conteúdo do arquivo:', content);
-			Alert.alert('Conteúdo do Arquivo', content);
+			Alert.alert('Resultado da pesquisa de Satisfação:', content);
 		} catch (error) {
 			console.error('Erro ao ler o arquivo:', error);
 			Alert.alert('Erro', 'Não foi possível ler os dados.');
 		}
 	};
 
-	// 🔽🔽🔽 TELA DE LOGIN 🔽🔽🔽
+	const backgroundImage = require('../../assets/images/bgDash.png');
+
 	if (!isLoggedIn) {
 		return (
-			<View style={styles.container}>
+			<ImageBackground source={backgroundImage} style={styles.container}>
 				<Text style={styles.title}>Login</Text>
 				<TextInput
 					style={styles.input}
@@ -111,24 +111,17 @@ const ChartComponent = () => {
 					onChangeText={setPassword}
 				/>
 				<Button title="Entrar" onPress={handleLogin} />
-			</View>
+			</ImageBackground>
 		);
 	}
 
-	// 🔽🔽🔽 TELA DA DASHBOARD 🔽🔽🔽
 	return (
-		<View style={styles.container}>
+		<ImageBackground source={backgroundImage} style={styles.container}>
 			<Text style={styles.title}>Resultados:</Text>
-			<PieChart
-				style={styles.pie}
-				widthAndHeight={widthAndHeight}
-				series={answers}
-				cover={0.15}
-			/>
-			<Button color={'#50C878'} title='Atualizar dados' onPress={loadData} />
-			<Button color={'#50C878'} title='Salvar como TXT' onPress={saveDataToFile} />
-			<Button color={'#50C878'} title='Ler arquivo TXT' onPress={readDataFromFile} />
-		</View>
+			<Button color={'#50C878'} title='Atualizar  dados' onPress={saveDataToFile} />
+			<Button color={'#50C878'} title='Visualizar dados' onPress={readDataFromFile} />
+
+		</ImageBackground>
 	);
 };
 
@@ -137,8 +130,8 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: 'green',
 		padding: 20,
+		gap: 10,
 	},
 	title: {
 		fontSize: 32,
