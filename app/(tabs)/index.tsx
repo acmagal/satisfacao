@@ -1,52 +1,47 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import {
 	Alert,
 	Image,
 	ImageBackground,
 	StyleSheet,
-	Text,
 	View,
+	TouchableOpacity,
 } from 'react-native';
 
-import Button from '../../components/Button';
 import { getData, storeData } from '@/services/storageService';
 import { AnswerState } from '@/types';
 
 export default function HomeScreen() {
 	const [answers, setAnswers] = useState<AnswerState[]>([
 		{
-			title: 'Empada de Frango',
+			title: 'Modelo 01',
 			value: 0,
 		},
 		{
-			title: 'Pão de Alho',
+			title: 'Modelo 02',
 			value: 0,
 		},
 		{
-			title: 'Torresmo',
+			title: 'Modelo 03',
 			value: 0,
 		},
 	]);
 
 	const images = [
 		{
-			title: 'Empada de Frango',
-			image: Image.resolveAssetSource(
-				require('../../assets/images/BT01.png')
-			).uri,
+			title: 'Modelo 01',
+			imageCenter: require('../../assets/images/CAMISA01.png'),
+			imageLeft: require('../../assets/images/Modelo01.png'),
 		},
 		{
-			title: 'Pão de Alho',
-			image: Image.resolveAssetSource(
-				require('../../assets/images/BT02.png')
-			).uri,
+			title: 'Modelo 02',
+			imageCenter: require('../../assets/images/CAMISA02.png'),
+			imageLeft: require('../../assets/images/Modelo02.png'),
 		},
 		{
-			title: 'Torresmo',
-			image: Image.resolveAssetSource(
-				require('../../assets/images/BT03.png')
-			).uri,
+			title: 'Modelo 03',
+			imageCenter: require('../../assets/images/CAMISA03.png'),
+			imageLeft: require('../../assets/images/Modelo03.png'),
 		},
 	];
 
@@ -78,13 +73,14 @@ export default function HomeScreen() {
 			style={styles.container}>
 			<View style={styles.header} />
 			<View style={styles.actions}>
-				{images.slice(0, 3).map((item, index) => (
-					<Button
+				{images.map((item, index) => (
+					<TouchableOpacity
 						key={index}
-						image={item.image}
-						onPress={() => handlePress(answers[index].title)}
 						style={styles.button}
-					/>
+						onPress={() => handlePress(answers[index].title)}>
+						<Image source={item.imageLeft} style={styles.imageLeft} />
+						<Image source={item.imageCenter} style={styles.imageCenter} />
+					</TouchableOpacity>
 				))}
 			</View>
 		</ImageBackground>
@@ -93,31 +89,48 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: 'pink',
+		backgroundColor: '#0c1d9f',
 		height: '100%',
+		width: '100%',
+
 	},
 	header: {
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
+
 	},
 	actions: {
-		flex: 3,
+
 		justifyContent: 'center',
 		alignItems: 'center',
-		width: '100%',
-		paddingTop: 50,
+		height: '90%',
+		paddingBottom: 90,
+
 	},
 	button: {
-		width: '90%',
-		height: 80,
-		justifyContent: 'center',
+		width: '100%',
+		height: '25%',
+		flexDirection: 'row',
 		alignItems: 'center',
-		borderRadius: 12,
-		marginBottom: 30,
-		backgroundColor: 'rgba(9, 140, 48, 0.6)',
-		borderWidth: 4,
-		borderColor: 'rgba(136, 186, 101, 0.6)',
+		marginBottom: 10,
+		borderWidth: 15,
+		backgroundColor: 'white',
+		borderColor: 'white',
+		gap: '10%',
+
+	},
+	imageLeft: {
+		width: '25%',
+		height: '11%',
+		resizeMode: 'contain',
+
+	},
+	imageCenter: {
+		width: '30%',
+		height: '100%',
+		resizeMode: 'contain',
+
 	},
 });
 

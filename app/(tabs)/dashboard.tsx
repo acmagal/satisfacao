@@ -118,8 +118,8 @@ const ChartComponent = () => {
 	return (
 		<ImageBackground source={backgroundImage} style={styles.container}>
 			<Text style={styles.title}>Resultados:</Text>
-			<Button color={'#50C878'} title='Atualizar  dados' onPress={saveDataToFile} />
-			<Button color={'#50C878'} title='Visualizar dados' onPress={readDataFromFile} />
+			<Button color={'#0c1d9f'} title='Atualizar  dados' onPress={saveDataToFile} />
+			<Button color={'#0c1d9f'} title='Visualizar dados' onPress={readDataFromFile} />
 
 		</ImageBackground>
 	);
